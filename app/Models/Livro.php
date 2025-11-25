@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Livro extends Model
 {
@@ -13,6 +14,14 @@ class Livro extends Model
         'bibliografia',
         'imagem_capa',
         'preco',
+    ];
+
+     protected $casts = [
+        'isbn'         => 'encrypted:string',
+        'nome'         => 'encrypted:string',
+        'bibliografia' => 'encrypted:string',
+        'imagem_capa'  => 'encrypted:string',
+        'preco'        => 'decimal:2',
     ];
 
     public function editora()
