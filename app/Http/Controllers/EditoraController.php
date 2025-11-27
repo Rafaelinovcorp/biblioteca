@@ -53,7 +53,7 @@ class EditoraController extends Controller
 
     public function edit(Editora $editora)
     {
-        return view('editoras.edit', compact('editora'));
+        return view('editoras.confirm-delete', compact('editora'));
     }
 
     public function update(Request $request, Editora $editora)
@@ -74,12 +74,17 @@ class EditoraController extends Controller
             ->with('success', 'Editora atualizada com sucesso.');
     }
 
-    public function destroy(Editora $editora)
+    public function destroy(Editora $editora)   
     {
         $editora->delete();
 
         return redirect()
             ->route('editoras.index')
             ->with('success', 'Editora apagada com sucesso.');
+    }
+
+    public function confirmDelete(Editora $editora)
+    {
+        return view('editoras.confirm-delete', compact('editora')); 
     }
 }

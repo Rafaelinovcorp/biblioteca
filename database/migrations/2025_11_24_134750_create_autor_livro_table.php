@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('autor_id')->constrained('autors')->onDelete('cascade');
             $table->foreignId('livro_id')->constrained('livros')->onDelete('cascade');
+            $table->string('foto')->nullable();
+
             $table->timestamps();
 
             $table->unique(['autor_id', 'livro_id']);

@@ -15,7 +15,17 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                </div>
+
+                      <!-- Autores -->
+                    <x-nav-link href="{{ route('autores.index') }}" :active="request()->routeIs('autores.*')">
+                        {{ __('Autores') }}
+                    </x-nav-link>
+
+                        <!-- Autores -->
+                    <x-nav-link href="{{ route('editoras.index') }}" :active="request()->routeIs('editoras.*')">
+                        {{ __('Editoras') }}
+                    </x-nav-link>
+                </div>                
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
