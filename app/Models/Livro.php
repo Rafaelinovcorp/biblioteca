@@ -4,33 +4,56 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class Livro extends Model
 {
-      protected $fillable = [
-        'isbn',
+    use HasFactory;
+
+    protected $fillable = [
         'nome',
-        'editora_id',
-        'bibliografia',
-        'imagem_capa',
+        'isbn',
+        'ano',
         'preco',
+        'editora_id',
+        'pdf_path',
+        'nome_search', // campo de pesquisa (não encriptado)
     ];
 
-     protected $casts = [
-        'isbn'         => 'encrypted:string',
-        'nome'         => 'encrypted:string',
-        'bibliografia' => 'encrypted:string',
-        'imagem_capa'  => 'encrypted:string',
-        'preco'        => 'decimal:2',
+    /**
+     * Campos com cast de encriptação.
+     * Atenção: campos encriptados não podem ser pesquisados/ordenados na BD.
+     */
+    protected $casts = [
+        'nome'     => 'encrypted',
+        'isbn'     => 'encrypted',
+        'ano'      => 'encrypted',
+        'preco'    => 'encrypted',
+        'pdf_path' => 'encrypted',
     ];
 
-    public function editora()
+    /**
+     * Mantém o campo nome_search actualizado automaticamente.
+     */
+    protected static function booted()
     {
-        return $this->belongsTo(Editora::class);
+        static::saving(function ($livro) {
+            if (isset($livro->nome)) {
+                $plain = trim($livro->nome);
+                $normalized = Str::ascii($plain);
+                $livro->nome_search = mb_strtolower($normalized);
+            }
+        });
     }
 
     public function autores()
     {
-        return $this->belongsToMany(Autor::class, 'autor_livro');
+        // especifica a tabela pivot e as chaves para evitar ambiguidades
+        return $this->belongsToMany(Autor::class, 'autor_livro', 'livro_id', 'autor_id');
+    }
+
+    public function editora()
+    {
+        return $this->belongsTo(Editora::class);
     }
 }

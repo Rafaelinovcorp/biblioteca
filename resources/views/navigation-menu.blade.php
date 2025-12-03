@@ -25,6 +25,11 @@
                     <x-nav-link href="{{ route('editoras.index') }}" :active="request()->routeIs('editoras.*')">
                         {{ __('Editoras') }}
                     </x-nav-link>
+
+                    <x-nav-link href="{{ route('livros.index') }}" :active="request()->routeIs('livros.*')">
+                        {{ __('Livros') }}
+                    </x-nav-link>
+
                 </div>                
             </div>
 

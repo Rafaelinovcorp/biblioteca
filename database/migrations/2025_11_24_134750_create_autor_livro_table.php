@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('autor_livro', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('autor_id')->constrained('autors')->onDelete('cascade');
+            $table->foreignId('autor_id')->constrained('autores')->onDelete('cascade');
             $table->foreignId('livro_id')->constrained('livros')->onDelete('cascade');
             $table->string('foto')->nullable();
 

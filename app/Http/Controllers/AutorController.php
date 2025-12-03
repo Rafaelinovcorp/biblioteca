@@ -5,22 +5,32 @@ namespace App\Http\Controllers;
 use App\Models\Autor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\QueryException;
+
+
 
 class AutorController extends Controller
 {
     /**
      * Lista todos os autores.
      */
-    public function index()
-    {
-        // se quiseres, podes trocar por paginate()
-        $autores = Autor::orderBy('nome')->get();
+public function index(Request $request)
+{
+    $query = Autor::query();
+    $nome = trim($request->query('nome', ''));
 
-        return view('autores.index', compact('autores'));
+    if ($nome !== '') {
+        $nomeNormalized = \Illuminate\Support\Str::ascii(mb_strtolower($nome));
+        $query->where('nome_search', 'like', $nomeNormalized . '%');
     }
 
+    $autores = $query->orderBy('nome')->paginate(10)->withQueryString();
+    return view('autores.index', compact('autores'));
+}
+
+
     /**
-     * Mostra o formulário de criação.
+     * Mostra formulário de criação.
      */
     public function create()
     {
@@ -37,12 +47,11 @@ class AutorController extends Controller
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-            $fotoPath = null;
+        $fotoPath = null;
 
-            
-            if ($request->hasFile('foto')) {
-                $fotoPath = $request->file('foto')->store('autores', 'public');
-            }
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('autores', 'public');
+        }
 
         Autor::create([
             'nome' => $request->nome,
@@ -55,15 +64,16 @@ class AutorController extends Controller
     }
 
     /**
-     * Mostra um autor específico.
+     * Mostra detalhes de um autor.
      */
     public function show(Autor $autor)
     {
+        // IMPORTANTE: enviar 'autor' (singular)
         return view('autores.show', compact('autor'));
     }
 
     /**
-     * Mostra o formulário de edição.
+     * Mostra formulário de edição.
      */
     public function edit(Autor $autor)
     {
@@ -73,48 +83,59 @@ class AutorController extends Controller
     /**
      * Atualiza um autor.
      */
-   public function update(Request $request, Autor $autor)
-{
-    $request->validate([
-        'nome' => 'required|string|max:255',
-        'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
+    public function update(Request $request, Autor $autor)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-    $autor->nome = $request->nome;
+        $autor->nome = $request->nome;
 
-    // Se foi enviada uma nova foto
-    if ($request->hasFile('foto')) {
-        // Apagar foto antiga (se existir)
-        if ($autor->foto) {
-            Storage::disk('public')->delete($autor->foto);
+        if ($request->hasFile('foto')) {
+            // apaga foto antiga se existir
+            if ($autor->foto) {
+                Storage::disk('public')->delete($autor->foto);
+            }
+
+            $path = $request->file('foto')->store('autores', 'public');
+            $autor->foto = $path;
         }
 
-        // Guardar nova foto
-        $path = $request->file('foto')->store('autores', 'public');
-        $autor->foto = $path;
+        $autor->save();
+
+        return redirect()
+            ->route('autores.index')
+            ->with('success', 'Autor atualizado com sucesso!');
     }
-
-    $autor->save();
-
-    return redirect()
-        ->route('autores.index')
-        ->with('success', 'Autor atualizado com sucesso!');
-}
 
     /**
      * Apaga um autor.
      */
-    public function destroy(Autor $autor)
-    {
-        $autor->delete();
+public function destroy(Autor $autor)
+{
 
+    if ($autor->livros()->exists()) {
         return redirect()
             ->route('autores.index')
-            ->with('success', 'Autor apagado com sucesso!');
+            ->with('error', 'Não é possível apagar esta autor porque existem livros associados.');
     }
 
+ 
+    $autor->delete();
+
+    return redirect()
+        ->route('autores.index')
+        ->with('success', 'autor apagada com sucesso.');
+}
+
+
+    /**
+     * Página de confirmação de delete.
+     */
     public function confirmDelete(Autor $autor)
     {
         return view('autores.confirm-delete', compact('autor'));
     }
+
 }

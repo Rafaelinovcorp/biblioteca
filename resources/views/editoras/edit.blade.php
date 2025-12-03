@@ -39,6 +39,9 @@
                 <button class="mt-4 bg-blue-600 text-black px-4 py-2 rounded">
                     Atualizar
                 </button>
+
+                  <a href="{{ route('editoras.index') }}" class="mt-6 inline-block text-blue-600 hover:underline">
+                Voltar à lista
             </form>
         </div>
     </div>

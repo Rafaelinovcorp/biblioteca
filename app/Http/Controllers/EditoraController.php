@@ -4,29 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\Editora;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 
 class EditoraController extends Controller
 {
-    public function index(Request $request)
-    {
-        $search = $request->query('search');
-        $sort   = $request->query('sort', 'nome');
-        $dir    = $request->query('dir', 'asc');
+public function index(Request $request)
+{
+    $query = Editora::query();
+    $term = trim($request->query('nome', ''));
 
-        $query = Editora::query();
-
-        if ($search) {
-            $query->where('nome', 'like', "%{$search}%");
-        }
-
-        if (in_array($sort, ['nome', 'created_at']) && in_array($dir, ['asc', 'desc'])) {
-            $query->orderBy($sort, $dir);
-        }
-
-        $editoras = $query->paginate(10)->withQueryString();
-
-        return view('editoras.index', compact('editoras', 'search', 'sort', 'dir'));
+    if ($term !== '') {
+        $normalized = Str::ascii(mb_strtolower($term));
+        $query->where('nome_search', 'like', $normalized . '%');
     }
+
+    $editoras = $query->orderBy('nome')->paginate(10)->withQueryString();
+    return view('editoras.index', compact('editoras'));
+}
 
     public function create()
     {
@@ -52,9 +47,10 @@ class EditoraController extends Controller
     }
 
     public function edit(Editora $editora)
-    {
-        return view('editoras.confirm-delete', compact('editora'));
-    }
+{
+    return view('editoras.edit', compact('editora'));
+}
+
 
     public function update(Request $request, Editora $editora)
     {
@@ -74,14 +70,24 @@ class EditoraController extends Controller
             ->with('success', 'Editora atualizada com sucesso.');
     }
 
-    public function destroy(Editora $editora)   
-    {
-        $editora->delete();
+public function destroy(Editora $editora)
+{
 
+    if ($editora->livros()->exists()) {
         return redirect()
             ->route('editoras.index')
-            ->with('success', 'Editora apagada com sucesso.');
+            ->with('error', 'Não é possível apagar esta editora porque existem livros associados.');
     }
+
+    // Apaga a editora
+    $editora->delete();
+
+    return redirect()
+        ->route('editoras.index')
+        ->with('success', 'Editora apagada com sucesso.');
+}
+
+
 
     public function confirmDelete(Editora $editora)
     {

@@ -10,29 +10,47 @@
             <form action="{{ route('autores.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
+                {{-- Nome --}}
                 <div>
-                    <label class="block mb-2">Nome</label>
-                    <input type="text" name="nome"
+                    <label class="block mb-2 font-semibold">Nome</label>
+                    <input type="text"
+                           name="nome"
                            value="{{ old('nome') }}"
-                           class="w-full border-gray-300 rounded" required>
+                           class="w-full border-gray-300 rounded px-3 py-2"
+                           required>
                 </div>
 
-                <div class="mt-4">
-                    <label for="foto" class="block text-sm font-medium text-gray-700">Foto do Autor</label>
-                    <input
-                        id="foto"
-                        name="foto"
-                        type="file"
-                        class="mt-1 block w-full text-sm text-gray-700
-                               border-gray-300 rounded-md shadow-sm
-                               focus:border-indigo-500 focus:ring-indigo-500"
-                    >
+                {{-- Avatar preview + upload --}}
+                <div class="mt-4 flex items-center gap-4">
+                    <div class="avatar">
+                        <div class="w-20 h-20 rounded-full overflow-hidden">
+                            <img
+                                src="{{ asset('storage/autores/default-avatar.jpg') }}"
+                                alt="Avatar padrão"
+                                class="w-full h-full object-cover"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 font-semibold">Foto (avatar)</label>
+                        <input type="file"
+                               name="foto"
+                               class="file-input file-input-bordered w-full max-w-xs">
+
+                        @error('foto')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
-
-                <button class="mt-4 bg-green-600 text-black px-4 py-2 rounded">
+                <button class="mt-6 bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700 transition">
                     Guardar
                 </button>
+                
+                <a href="{{ route('autores.index') }}" class="mt-6 inline-block text-blue-600 hover:underline">
+                Voltar à lista
+            </a>
             </form>
         </div>
     </div>
