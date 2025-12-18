@@ -1,0 +1,352 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Alpine / Livewire */
+[x-cloak] {
+    display: none;
+}
+
+
+input,
+textarea,
+select {
+    background-color: hsl(var(--b1));
+    color: hsl(var(--bc));
+    border-width: 1px;
+    border-style: solid;
+    border-color: hsl(var(--b3));
+}
+
+/* Placeholder */
+input::placeholder,
+textarea::placeholder {
+    color: hsl(var(--bc) / 0.5);
+}
+
+/* Focus */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: hsl(var(--p));
+    box-shadow: 0 0 0 1px hsl(var(--p));
+}
+
+/* Disabled */
+input:disabled,
+textarea:disabled,
+select:disabled {
+    background-color: hsl(var(--b2));
+    opacity: 0.7;
+}
+
+/* File input */
+input[type="file"] {
+    background-color: transparent;
+    color: hsl(var(--bc));
+}
+
+/* Multi select (autores, etc.) */
+select[multiple] {
+    min-height: 8rem;
+}
+
+/* Dropdown fechado */
+select {
+    background-color: hsl(var(--b1));
+    color: hsl(var(--bc));
+}
+
+/* Lista aberta (options) */
+select option {
+    background-color: hsl(var(--b1));
+    color: hsl(var(--bc));
+}
+
+/* Option hover / selecionada */
+select option:checked,
+select option:hover {
+    background-color: hsl(var(--p));
+    color: hsl(var(--pc));
+}
+
+/* Multi-select específico */
+select[multiple] {
+    background-color: hsl(var(--b1));
+}
+
+/* Remove highlight azul do browser (Chrome / Edge) */
+select option:checked {
+    box-shadow: 0 0 0 100vmax hsl(var(--p)) inset;
+}
+
+
+
+/* Cards / Panels */
+.bg-white {
+    background-color: hsl(var(--b1)) !important;
+}
+
+/* Bordas claras */
+.border-gray-200,
+.border-gray-300 {
+    border-color: hsl(var(--b3)) !important;
+}
+
+/* Texto */
+.text-gray-700,
+.text-gray-800,
+.text-gray-900 {
+    color: hsl(var(--bc)) !important;
+}
+
+/* Texto secundário */
+.text-gray-500,
+.text-gray-600 {
+    color: hsl(var(--bc) / 0.6) !important;
+}
+
+/* Labels */
+label {
+    color: hsl(var(--bc));
+}
+
+/* Separadores */
+hr {
+    border-color: hsl(var(--b3));
+}
+
+/* Botões Jetstream */
+button.bg-gray-800,
+button.bg-indigo-600 {
+    background-color: hsl(var(--p)) !important;
+    color: hsl(var(--pc)) !important;
+}
+
+/* Hover botões */
+button.bg-gray-800:hover,
+button.bg-indigo-600:hover {
+    background-color: hsl(var(--pf)) !important;
+}
+
+
+/* Inputs do Jetstream */
+input.bg-white,
+textarea.bg-white,
+select.bg-white {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+}
+
+/* Inputs normais dentro do profile */
+[x-data] input,
+[x-data] textarea,
+[x-data] select {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+    border-color: hsl(var(--b3)) !important;
+}
+
+/* Placeholder */
+[x-data] input::placeholder {
+    color: hsl(var(--bc) / 0.5) !important;
+}
+
+/* Botão SAVE do Jetstream */
+button[type="submit"] {
+    background-color: hsl(var(--p)) !important;
+    color: hsl(var(--pc)) !important;
+    border: none !important;
+}
+
+/* Hover botão */
+button[type="submit"]:hover {
+    background-color: hsl(var(--pf)) !important;
+}
+
+/* Botão desativado */
+button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Inputs específicos do Jetstream */
+input.border-gray-300,
+textarea.border-gray-300,
+select.border-gray-300 {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+    border-color: hsl(var(--b3)) !important;
+}
+
+/* Remove ring azul do Jetstream */
+input:focus,
+textarea:focus,
+select:focus {
+    --tw-ring-color: transparent !important;
+    --tw-ring-shadow: none !important;
+    box-shadow: 0 0 0 1px hsl(var(--p)) !important;
+}
+
+/* Texto dentro do input (Jetstream) */
+input.border-gray-300::placeholder {
+    color: hsl(var(--bc) / 0.5) !important;
+}
+
+/* Botão SAVE (container + botão) */
+.bg-gray-50 {
+    background-color: transparent !important;
+}
+
+/* Botão do Jetstream */
+button[type="submit"] {
+    background-color: hsl(var(--p)) !important;
+    color: hsl(var(--pc)) !important;
+}
+
+/* Hover */
+button[type="submit"]:hover {
+    background-color: hsl(var(--pf)) !important;
+}
+
+
+.input,
+.textarea,
+.select,
+.file-input {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+    border-color: hsl(var(--b3)) !important;
+}
+
+/* Focus DaisyUI */
+.input:focus,
+.textarea:focus,
+.select:focus {
+    outline: none;
+    border-color: hsl(var(--p)) !important;
+    box-shadow: 0 0 0 1px hsl(var(--p)) !important;
+}
+
+/* Placeholder */
+.input::placeholder,
+.textarea::placeholder {
+    color: hsl(var(--bc) / 0.5) !important;
+}
+
+/* Disabled */
+.input:disabled,
+.textarea:disabled,
+.select:disabled {
+    background-color: hsl(var(--b2)) !important;
+}
+/* Container principal (card branco) */
+.min-h-screen .bg-white {
+    background-color: hsl(var(--b1)) !important;
+}
+
+/* Wrapper do formulário */
+.shadow-md {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+}
+
+/* Inputs do login */
+input.border-gray-300 {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+    border-color: hsl(var(--b3)) !important;
+}
+
+/* Placeholder */
+input.border-gray-300::placeholder {
+    color: hsl(var(--bc) / 0.5) !important;
+}
+
+/* Focus (remove ring azul Jetstream) */
+input:focus {
+    --tw-ring-color: transparent !important;
+    --tw-ring-shadow: none !important;
+    box-shadow: 0 0 0 1px hsl(var(--p)) !important;
+}
+
+/* Labels */
+label {
+    color: hsl(var(--bc)) !important;
+}
+
+/* Links (forgot password) */
+a {
+    color: hsl(var(--p));
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* Botão LOGIN */
+button[type="submit"] {
+    background-color: hsl(var(--p)) !important;
+    color: hsl(var(--pc)) !important;
+    border: none !important;
+}
+button[type="submit"]:hover {
+    background-color: hsl(var(--pf)) !important;
+}
+
+/* Checkbox */
+input[type="checkbox"] {
+    accent-color: hsl(var(--p));
+}
+
+
+/* Card do login */
+[x-guest-layout] .bg-white {
+    background-color: hsl(var(--b1)) !important;
+}
+
+/* Inputs gerados por <x-input> */
+[x-guest-layout] input {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+    border-color: hsl(var(--b3)) !important;
+}
+
+/* Placeholder */
+[x-guest-layout] input::placeholder {
+    color: hsl(var(--bc) / 0.5) !important;
+}
+
+/* Focus (remove ring azul) */
+[x-guest-layout] input:focus {
+    --tw-ring-color: transparent !important;
+    --tw-ring-shadow: none !important;
+    box-shadow: 0 0 0 1px hsl(var(--p)) !important;
+}
+
+/* Labels */
+[x-guest-layout] label,
+[x-guest-layout] span {
+    color: hsl(var(--bc)) !important;
+}
+
+/* Botão <x-button> */
+[x-guest-layout] button {
+    background-color: hsl(var(--p)) !important;
+    color: hsl(var(--pc)) !important;
+    border: none !important;
+}
+
+/* Hover botão */
+[x-guest-layout] button:hover {
+    background-color: hsl(var(--pf)) !important;
+}
+
+/* Checkbox */
+[x-guest-layout] input[type="checkbox"] {
+    accent-color: hsl(var(--p));
+}
+
+/* Links */
+[x-guest-layout] a {
+    color: hsl(var(--p)) !important;
+}
