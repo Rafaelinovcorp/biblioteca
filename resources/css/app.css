@@ -64,13 +64,6 @@ select option {
     color: hsl(var(--bc));
 }
 
-/* Option hover / selecionada */
-select option:checked,
-select option:hover {
-    background-color: hsl(var(--p));
-    color: hsl(var(--pc));
-}
-
 /* Multi-select específico */
 select[multiple] {
     background-color: hsl(var(--b1));
@@ -349,4 +342,61 @@ input[type="checkbox"] {
 /* Links */
 [x-guest-layout] a {
     color: hsl(var(--p)) !important;
+}
+/* FIX DaisyUI menu dropdowns */
+.menu li > ul {
+    display: none;
+}
+.menu li:hover > ul {
+    display: block;
+}
+
+/* Caixa do select */
+select {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+}
+
+/* Lista aberta */
+select option {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+}
+
+/* Option hover / selecionada */
+select option:hover,
+select option:checked {
+    background-color: hsl(var(--p)) !important;
+    color: hsl(var(--pc)) !important;
+}
+
+/* Firefox fix */
+select option:checked {
+    box-shadow: 0 0 0 100vmax hsl(var(--p)) inset;
+}
+
+/* ===== SELECT / COMBOBOX DARK MODE (FINAL) ===== */
+
+select {
+    background-color: hsl(var(--b1)) !important;
+    color: hsl(var(--bc)) !important;
+    border-color: hsl(var(--b3)) !important;
+    appearance: none;
+}
+
+/* Texto quando não há seleção real (placeholder) */
+select:has(option[value=""]:checked) {
+    color: hsl(var(--bc) / 0.6) !important;
+}
+
+/* Dropdown (Chrome / Edge fallback) */
+select option {
+    background-color: hsl(var(--b1));
+    color: hsl(var(--bc));
+}
+
+/* Hover / selected (funciona melhor no Firefox) */
+select option:checked {
+    background-color: hsl(var(--p));
+    color: hsl(var(--pc));
 }

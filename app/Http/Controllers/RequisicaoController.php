@@ -4,8 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Requisicao;
 use App\Models\Livro;
+use App\Models\AlertaLivro;
+use App\Mail\LivroDisponivelMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class RequisicaoController extends Controller
 {
@@ -13,11 +19,16 @@ class RequisicaoController extends Controller
     {
         $user = Auth::user();
 
-
-        $requisicoes = Requisicao::where('user_id', $user->id)
-            ->with('livro')
-            ->latest()
-            ->paginate(20);
+        if ($user->role === 'admin') {
+            $requisicoes = Requisicao::with(['livro', 'user'])
+                ->latest()
+                ->paginate(20);
+        } else {
+            $requisicoes = Requisicao::where('user_id', $user->id)
+                ->with('livro')
+                ->latest()
+                ->paginate(20);
+        }
 
         return view('requisicoes.index', compact('requisicoes'));
     }
@@ -45,10 +56,9 @@ class RequisicaoController extends Controller
             ]);
         }
 
-
         if (
             $user->requisicoes()
-                ->whereIn('estado', ['pendente', 'confirmado'])
+                ->whereIn('estado', ['pendente', 'confirmado', 'devolucao_pedida'])
                 ->count() >= 3
         ) {
             return back()->withErrors([
@@ -66,6 +76,10 @@ class RequisicaoController extends Controller
 
         $livro->update(['estado' => 'ocupado']);
 
+        AlertaLivro::where('livro_id', $livro->id)
+    ->update(['notificado' => false]);
+
+
         return redirect()
             ->route('requisicoes.index')
             ->with('success', 'Requisição criada com sucesso.');
@@ -75,23 +89,27 @@ class RequisicaoController extends Controller
     {
         $user = Auth::user();
 
-   
-        if ($requisicao->user_id !== $user->id) {
+        if ($user->role !== 'admin' && $requisicao->user_id !== $user->id) {
             abort(403);
         }
 
-        $requisicao->load(['livro', 'user']);
+        $requisicao->load(['livro', 'user', 'review']);
 
         return view('requisicoes.show', compact('requisicao'));
     }
 
-    public function confirmar($id)
-    {
+    // =========================
+    // ADMIN
+    // =========================
 
-        $requisicao = Requisicao::findOrFail($id);
+    public function confirmar(Requisicao $requisicao)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
 
         if ($requisicao->estado !== 'pendente') {
-            return back();
+            return back()->withErrors('Só é possível confirmar requisições pendentes.');
         }
 
         $requisicao->update([
@@ -101,13 +119,37 @@ class RequisicaoController extends Controller
         return back()->with('success', 'Requisição confirmada.');
     }
 
-    public function devolver($id)
+    public function negar(Requisicao $requisicao)
     {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
 
-        $requisicao = Requisicao::findOrFail($id);
+        if ($requisicao->estado !== 'pendente') {
+            return back()->withErrors('Só é possível negar requisições pendentes.');
+        }
 
-        if ($requisicao->estado !== 'confirmado') {
-            return back();
+        $requisicao->update([
+            'estado' => 'cancelado',
+        ]);
+
+        $requisicao->livro->update([
+            'estado' => 'disponivel',
+        ]);
+
+        $this->notificarLivroDisponivel($requisicao->livro);
+
+        return back()->with('success', 'Requisição negada.');
+    }
+
+    public function aceitarDevolucao(Requisicao $requisicao)
+    {
+        if (Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        if ($requisicao->estado !== 'devolucao_pedida') {
+            return back()->withErrors('Não existe pedido de devolução.');
         }
 
         $agora = now();
@@ -130,6 +172,103 @@ class RequisicaoController extends Controller
             'estado' => 'disponivel',
         ]);
 
-        return back()->with('success', 'Livro devolvido com sucesso.');
+        $this->notificarLivroDisponivel($requisicao->livro);
+
+        return back()->with('success', 'Devolução aceite com sucesso.');
+    }
+
+    // =========================
+    // CIDADÃO
+    // =========================
+
+    public function pedirDevolucao(Requisicao $requisicao)
+    {
+        $user = Auth::user();
+
+        if ($requisicao->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($requisicao->estado !== 'confirmado') {
+            return back()->withErrors('Só podes pedir devolução de requisições confirmadas.');
+        }
+
+        $requisicao->update([
+            'estado' => 'devolucao_pedida',
+        ]);
+
+        return back()->with('success', 'Pedido de devolução enviado.');
+    }
+
+    public function cancelar(Requisicao $requisicao)
+    {
+        $user = Auth::user();
+
+        if ($requisicao->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($requisicao->estado !== 'pendente') {
+            return back()->withErrors('Só podes cancelar requisições pendentes.');
+        }
+
+        $requisicao->update([
+            'estado' => 'cancelado',
+        ]);
+
+        $requisicao->livro->update([
+            'estado' => 'disponivel',
+        ]);
+
+        $this->notificarLivroDisponivel($requisicao->livro);
+
+        return back()->with('success', 'Requisição cancelada.');
+    }
+
+    // =========================
+    // DOWNLOAD
+    // =========================
+
+    public function download(Requisicao $requisicao)
+    {
+        $user = Auth::user();
+
+        if ($requisicao->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if (!in_array($requisicao->estado, ['confirmado', 'devolucao_pedida'])) {
+            abort(403, 'Download não disponível neste estado.');
+        }
+
+        $livro = $requisicao->livro;
+
+        if (!$livro->pdf_path || !Storage::exists($livro->pdf_path)) {
+            abort(404, 'PDF não encontrado.');
+        }
+
+        return Storage::download(
+            $livro->pdf_path,
+            Str::slug($livro->nome) . '.pdf'
+        );
+    }
+
+    // =========================
+    // ALERTAS
+    // =========================
+
+    private function notificarLivroDisponivel(Livro $livro): void
+    {
+        $alertas = AlertaLivro::where('livro_id', $livro->id)
+            ->where('notificado', false)
+            ->with('user')
+            ->get();
+
+        foreach ($alertas as $alerta) {
+            Mail::to($alerta->user->email)
+                ->send(new LivroDisponivelMail($livro));
+
+            $alerta->update(['notificado' => true]);
+        }
     }
 }

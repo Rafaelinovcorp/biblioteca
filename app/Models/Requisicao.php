@@ -42,4 +42,17 @@ class Requisicao extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
+    public function review()
+{
+    return $this->hasOne(Review::class);
+}
+
+  public const ESTADOS = [
+        'pendente',
+        'confirmado',
+        'devolucao_pedida',
+        'entregue',
+        'cancelado',
+    ];
 }

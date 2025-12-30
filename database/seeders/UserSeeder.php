@@ -17,6 +17,7 @@ class UserSeeder extends Seeder
                 'name' => 'Administrador',
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
+                'foto_perfil' => 'users/admin.jpg', 
             ]
         );
 
@@ -27,7 +28,9 @@ class UserSeeder extends Seeder
                 'name' => 'João Silva',
                 'password' => Hash::make('password'),
                 'role' => 'cidadao',
+                'foto_perfil' => 'users/cidadao.jpg',
             ]
         );
     }
 }
+

@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->date('data_fim_previsto');
             $table->date('data_fim_real')->nullable();
             $table->integer('dias_decorridos')->nullable();
-            $table->enum('estado', ['pendente','confirmado','entregue','cancelado'])->default('pendente');
+           $table->string('estado')->default('pendente');
             $table->timestamps();
         });
     }

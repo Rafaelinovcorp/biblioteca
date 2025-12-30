@@ -1,38 +1,19 @@
-@can('admin')
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl">
-            Relatórios
-        </h2>
-    </x-slot>
+<?php
 
-    <div class="p-6 max-w-xl space-y-4">
-        <form method="POST"
-              action="{{ route('relatorios.gerar') }}"
-              class="space-y-4">
+namespace App\Http\Controllers;
 
-            @csrf
+use Illuminate\Http\Request;
 
-            <div>
-                <label class="label">Data de início</label>
-                <input type="date"
-                       name="inicio"
-                       class="input input-bordered w-full"
-                       required>
-            </div>
+class RelatorioController extends Controller
+{
+    public function index()
+    {
+        return view('relatorios.index');
+    }
 
-            <div>
-                <label class="label">Data de fim</label>
-                <input type="date"
-                       name="fim"
-                       class="input input-bordered w-full"
-                       required>
-            </div>
-
-            <button class="btn btn-primary w-full">
-                Gerar PDF
-            </button>
-        </form>
-    </div>
-</x-app-layout>
-@endcan
+    public function gerar(Request $request)
+    {
+        // por agora só para não dar erro
+        return back()->with('success', 'Relatório gerado.');
+    }
+}

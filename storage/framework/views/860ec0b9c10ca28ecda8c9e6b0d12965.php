@@ -51,35 +51,35 @@
 
                             <td class="flex gap-2">
 
-    <a href="<?php echo e(route('requisicoes.show', $r->id)); ?>"
-       class="btn btn-outline btn-sm">
-        Ver
-    </a>
+                                <a href="<?php echo e(route('requisicoes.show', $r)); ?>"
+                                   class="btn btn-outline btn-sm">
+                                    Ver
+                                </a>
 
-    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
 
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($r->estado === 'pendente'): ?>
-            <form method="POST"
-                  action="<?php echo e(route('requisicoes.confirmar', ['id' => $r->id])); ?>">
-                <?php echo csrf_field(); ?>
-                <button class="btn btn-info btn-sm">
-                    Confirmar
-                </button>
-            </form>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($r->estado === 'pendente'): ?>
+                                        <form method="POST"
+                                              action="<?php echo e(route('requisicoes.confirmar', $r)); ?>">
+                                            <?php echo csrf_field(); ?>
+                                            <button class="btn btn-info btn-sm">
+                                                Confirmar
+                                            </button>
+                                        </form>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($r->estado === 'confirmado'): ?>
-            <form method="POST"
-                  action="<?php echo e(route('requisicoes.devolver', ['id' => $r->id])); ?>">
-                <?php echo csrf_field(); ?>
-                <button class="btn btn-success btn-sm">
-                    Entregar
-                </button>
-            </form>
-        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($r->estado === 'confirmado'): ?>
+                                        <form method="POST"
+                                              action="<?php echo e(route('requisicoes.devolver', $r)); ?>">
+                                            <?php echo csrf_field(); ?>
+                                            <button class="btn btn-success btn-sm">
+                                                Entregar
+                                            </button>
+                                        </form>
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <?php endif; ?>
-</td>
+                                <?php endif; ?>
+                            </td>
 
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>

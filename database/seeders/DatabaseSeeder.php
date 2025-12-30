@@ -11,8 +11,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AutorSeeder::class,
             EditoraSeeder::class,
+            CategoriaSeeder::class,
             LivroSeeder::class,
             UserSeeder::class,
+            
         ]);
     }
 }

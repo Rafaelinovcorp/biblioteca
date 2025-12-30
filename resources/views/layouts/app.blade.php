@@ -12,17 +12,27 @@
 
     <div class="bg-base-300 shadow">
         <div class="navbar max-w-7xl mx-auto px-6">
-            <div class="flex-1">
+
+            <!-- ESQUERDA -->
+            <div class="navbar-start">
                 <span class="text-lg font-bold">📚 Biblioteca</span>
             </div>
-            <div class="flex-none">
+
+            <!-- CENTRO (MENU HORIZONTAL) -->
+            <div class="navbar-center">
                 @include('navigation-menu')
             </div>
+
+            <!-- DIREITA -->
+            <div class="navbar-end">
+                {{-- espaço reservado --}}
+            </div>
+
         </div>
     </div>
 
     <main class="max-w-7xl mx-auto px-6 py-6">
-        {{ $slot }}
+        @yield('content')
     </main>
 
     @livewireScripts

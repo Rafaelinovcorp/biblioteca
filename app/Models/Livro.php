@@ -11,11 +11,16 @@ class Livro extends Model
         'nome',
         'editora_id',
         'bibliografia',
+        'categoria_id',
         'capa',
         'preco',
         'estado',
         'pdf',
     ];
+    protected $casts = [
+    'preco' => 'decimal:2',
+];
+
 
     /*
     |--------------------------------------------------------------------------
@@ -37,6 +42,18 @@ class Livro extends Model
     {
         return $this->hasMany(Requisicao::class);
     }
+
+    public function reviews()
+{
+    return $this->hasMany(Review::class);
+}
+
+public function categoria()
+{
+    return $this->belongsTo(Categoria::class);
+}
+
+
 
     /*
     |--------------------------------------------------------------------------

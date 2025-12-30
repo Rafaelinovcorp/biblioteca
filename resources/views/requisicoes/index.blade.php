@@ -52,35 +52,35 @@
 
                             <td class="flex gap-2">
 
-    <a href="{{ route('requisicoes.show', $r->id) }}"
-       class="btn btn-outline btn-sm">
-        Ver
-    </a>
+                                <a href="{{ route('requisicoes.show', $r) }}"
+                                   class="btn btn-outline btn-sm">
+                                    Ver
+                                </a>
 
-    @can('admin')
+                                @can('admin')
 
-        @if($r->estado === 'pendente')
-            <form method="POST"
-                  action="{{ route('requisicoes.confirmar', ['id' => $r->id]) }}">
-                @csrf
-                <button class="btn btn-info btn-sm">
-                    Confirmar
-                </button>
-            </form>
-        @endif
+                                    @if($r->estado === 'pendente')
+                                        <form method="POST"
+                                              action="{{ route('requisicoes.confirmar', $r) }}">
+                                            @csrf
+                                            <button class="btn btn-info btn-sm">
+                                                Confirmar
+                                            </button>
+                                        </form>
+                                    @endif
 
-        @if($r->estado === 'confirmado')
-            <form method="POST"
-                  action="{{ route('requisicoes.devolver', ['id' => $r->id]) }}">
-                @csrf
-                <button class="btn btn-success btn-sm">
-                    Entregar
-                </button>
-            </form>
-        @endif
+                                    @if($r->estado === 'confirmado')
+                                        <form method="POST"
+                                              action="{{ route('requisicoes.devolver', $r) }}">
+                                            @csrf
+                                            <button class="btn btn-success btn-sm">
+                                                Entregar
+                                            </button>
+                                        </form>
+                                    @endif
 
-    @endcan
-</td>
+                                @endcan
+                            </td>
 
                         </tr>
                     @empty

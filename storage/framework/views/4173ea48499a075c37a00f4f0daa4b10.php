@@ -13,18 +13,27 @@
 
     <div class="bg-base-300 shadow">
         <div class="navbar max-w-7xl mx-auto px-6">
-            <div class="flex-1">
+
+            <!-- ESQUERDA -->
+            <div class="navbar-start">
                 <span class="text-lg font-bold">📚 Biblioteca</span>
             </div>
-            <div class="flex-none">
+
+            <!-- CENTRO (MENU HORIZONTAL) -->
+            <div class="navbar-center">
                 <?php echo $__env->make('navigation-menu', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             </div>
+
+            <!-- DIREITA -->
+            <div class="navbar-end">
+                
+            </div>
+
         </div>
     </div>
 
     <main class="max-w-7xl mx-auto px-6 py-6">
-        <?php echo e($slot); ?>
-
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
 
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(); ?>
