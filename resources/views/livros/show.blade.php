@@ -59,6 +59,17 @@
                 <button class="btn btn-warning">
                     🔔 Avisar quando disponível
                 </button>
+
+                @if ($livro->estado === 'disponivel')
+    <form method="POST" action="{{ route('carrinho.add', $livro) }}" class="mt-4">
+        @csrf
+        <button class="btn btn-primary">
+            🛒 Adicionar ao Carrinho
+        </button>
+    </form>
+@endif
+
+
             </form>
         @endif
 

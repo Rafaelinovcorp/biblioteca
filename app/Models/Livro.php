@@ -33,6 +33,12 @@ class Livro extends Model
         return $this->belongsTo(Editora::class);
     }
 
+    public function carrinhoItems()
+{
+    return $this->hasMany(CarrinhoItem::class);
+}
+
+
     public function autores()
     {
         return $this->belongsToMany(Autor::class, 'autor_livro');

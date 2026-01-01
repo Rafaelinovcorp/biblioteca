@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 
 Schedule::command('requisicoes:reminders')
     ->dailyAt('09:00');
+
+    Schedule::command('carrinho:inativo')
+    ->everyTenMinutes();

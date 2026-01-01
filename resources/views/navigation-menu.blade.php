@@ -19,6 +19,15 @@
             <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-44">
                 <li><a href="{{ route('livros.index') }}">📚 Livros</a></li>
                 <li><a href="{{ route('requisicoes.index') }}">📄 Requisições</a></li>
+                <li>
+    <a href="{{ route('carrinho.index') }}">
+        🛒 Carrinho
+    </a>
+</li>
+ <a href="{{ route('livros.meus') }}"
+       class="{{ request()->routeIs('livros.meus') ? 'active' : '' }}">
+        📚 Os meus livros
+    </a>
             </ul>
         </li>
 

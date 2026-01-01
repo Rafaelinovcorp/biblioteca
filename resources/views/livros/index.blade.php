@@ -154,6 +154,16 @@
                             Ver
                         </a>
 
+                        @if ($livro->estado === 'disponivel')
+                            <form method="POST" action="{{ route('carrinho.add', $livro) }}">
+                                @csrf
+                                <button class="btn btn-sm btn-primary">
+                                    🛒 Adicionar
+                                </button>
+                            </form>
+                        @endif
+
+
                         @if(auth()->check() && auth()->user()->role === 'admin')
                             <a href="{{ route('livros.edit', $livro) }}"
                                class="btn btn-xs btn-warning">

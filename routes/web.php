@@ -11,6 +11,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\GoogleBooksController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\AlertaLivroController;
+use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\CarrinhoController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OsMeusLivrosController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -37,12 +43,19 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 */
 Route::middleware('auth')->group(function () {
 
+    
+
     /*
     |--------------------------------------------------------------------------
     | LIVROS
     |--------------------------------------------------------------------------
     */
     Route::resource('livros', LivroController::class);
+
+    
+Route::get('/os-meus-livros', [OsMeusLivrosController::class, 'index'])
+    ->middleware('auth')
+    ->name('livros.meus');
 
     /*
     |--------------------------------------------------------------------------
@@ -64,6 +77,23 @@ Route::middleware('auth')->group(function () {
 
 Route::post('/alertas-livro', [AlertaLivroController::class, 'store'])
     ->name('alertas.store');
+
+
+    
+    Route::get('/carrinho', [CarrinhoController::class, 'index'])->name('carrinho.index');
+    Route::post('/carrinho/{livro}', [CarrinhoController::class, 'add'])->name('carrinho.add');
+    Route::delete('/carrinho/{livro}', [CarrinhoController::class, 'remove'])->name('carrinho.remove');
+
+    Route::get('/checkout/endereco', fn () => view('checkout.endereco'))->name('checkout.endereco');
+Route::post('/checkout', [CheckoutController::class, 'checkout'])->name('checkout.process');
+
+
+Route::get('/checkout/sucesso', fn () => view('checkout.sucesso'))
+    ->name('checkout.sucesso');
+
+    
+
+
 
 
 
