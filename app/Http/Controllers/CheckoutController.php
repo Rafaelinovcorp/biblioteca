@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
@@ -11,6 +10,7 @@ use App\Models\Carrinho;
 use App\Models\Endereco;
 use App\Models\Encomenda;
 use App\Models\EncomendaItem;
+use App\Services\LogService;
 
 class CheckoutController extends Controller
 {
@@ -22,6 +22,7 @@ class CheckoutController extends Controller
 
         $total = $carrinho->items->sum(fn ($i) => $i->livro->preco);
 
+        // 📦 Criar endereço
         $endereco = Endereco::create([
             'user_id' => auth()->id(),
             'nome' => $request->nome,
@@ -31,12 +32,26 @@ class CheckoutController extends Controller
             'pais' => $request->pais,
         ]);
 
+        LogService::criar(
+            'Checkout',
+            'Criou endereço para encomenda',
+            $endereco->id
+        );
+
+        // 🧾 Criar encomenda
         $encomenda = Encomenda::create([
             'user_id' => auth()->id(),
             'endereco_id' => $endereco->id,
             'total' => $total,
         ]);
 
+        LogService::criar(
+            'Encomendas',
+            'Criou encomenda',
+            $encomenda->id
+        );
+
+        // 📚 Criar itens da encomenda
         foreach ($carrinho->items as $item) {
             EncomendaItem::create([
                 'encomenda_id' => $encomenda->id,
@@ -45,6 +60,7 @@ class CheckoutController extends Controller
             ]);
         }
 
+        // 💳 Stripe
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $intent = PaymentIntent::create([
@@ -58,6 +74,12 @@ class CheckoutController extends Controller
         $encomenda->update([
             'stripe_payment_intent_id' => $intent->id
         ]);
+
+        LogService::criar(
+            'Checkout',
+            'Criou PaymentIntent Stripe',
+            $encomenda->id
+        );
 
         return view('checkout.pay', [
             'clientSecret' => $intent->client_secret

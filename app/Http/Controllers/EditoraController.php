@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Editora;
+use App\Services\LogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -13,8 +14,6 @@ class EditoraController extends Controller
 
     public function index()
     {
-      
-
         $editoras = Editora::withCount('livros')
             ->orderBy('nome')
             ->paginate(10);
@@ -24,15 +23,11 @@ class EditoraController extends Controller
 
     public function create()
     {
-        
-
         return view('editoras.create');
     }
 
     public function store(Request $request)
     {
-      
-
         $data = $request->validate([
             'nome' => 'required|string|max:255',
             'logotipo' => 'nullable|image|max:5120',
@@ -42,7 +37,13 @@ class EditoraController extends Controller
             $data['logotipo'] = $request->file('logotipo')->store('editoras', 'public');
         }
 
-        Editora::create($data);
+        $editora = Editora::create($data);
+
+        LogService::criar(
+            'Editoras',
+            'Criou a editora: ' . $editora->nome,
+            $editora->id
+        );
 
         return redirect()
             ->route('editoras.index')
@@ -58,15 +59,11 @@ class EditoraController extends Controller
 
     public function edit(Editora $editora)
     {
-        
-
         return view('editoras.edit', compact('editora'));
     }
 
     public function update(Request $request, Editora $editora)
     {
-        
-
         $data = $request->validate([
             'nome' => 'required|string|max:255',
             'logotipo' => 'nullable|image|max:5120',
@@ -82,6 +79,12 @@ class EditoraController extends Controller
 
         $editora->update($data);
 
+        LogService::criar(
+            'Editoras',
+            'Atualizou a editora: ' . $editora->nome,
+            $editora->id
+        );
+
         return redirect()
             ->route('editoras.index')
             ->with('success', 'Editora atualizada com sucesso.');
@@ -89,13 +92,17 @@ class EditoraController extends Controller
 
     public function destroy(Editora $editora)
     {
-       
-
         if ($editora->logotipo) {
             Storage::disk('public')->delete($editora->logotipo);
         }
 
         $editora->delete();
+
+        LogService::criar(
+            'Editoras',
+            'Eliminou a editora: ' . $editora->nome,
+            $editora->id
+        );
 
         return redirect()
             ->route('editoras.index')

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Review;
 use App\Models\Requisicao;
+use App\Services\LogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,7 +45,7 @@ class ReviewController extends Controller
             'rating' => 'nullable|integer|min:1|max:5',
         ]);
 
-        Review::create([
+        $review = Review::create([
             'requisicao_id' => $requisicao->id,
             'user_id'       => $user->id,
             'livro_id'      => $requisicao->livro_id,
@@ -52,6 +53,12 @@ class ReviewController extends Controller
             'rating'        => $request->rating,
             'estado'        => 'pendente',
         ]);
+
+        LogService::criar(
+            'Reviews',
+            'Criou review para o livro ID ' . $requisicao->livro_id,
+            $review->id
+        );
 
         return back()->with(
             'success',
@@ -66,9 +73,7 @@ class ReviewController extends Controller
     */
     public function pendentes()
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        abort_if(Auth::user()->role !== 'admin', 403);
 
         $reviews = Review::where('estado', 'pendente')
             ->with(['user', 'livro', 'requisicao'])
@@ -85,9 +90,7 @@ class ReviewController extends Controller
     */
     public function aprovar(Review $review)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        abort_if(Auth::user()->role !== 'admin', 403);
 
         if ($review->estado !== 'pendente') {
             return back()->withErrors('Esta review já foi tratada.');
@@ -96,6 +99,12 @@ class ReviewController extends Controller
         $review->update([
             'estado' => 'ativa',
         ]);
+
+        LogService::criar(
+            'Reviews',
+            'Aprovou review',
+            $review->id
+        );
 
         return back()->with('success', 'Review aprovada.');
     }
@@ -107,9 +116,7 @@ class ReviewController extends Controller
     */
     public function recusar(Request $request, Review $review)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        abort_if(Auth::user()->role !== 'admin', 403);
 
         if ($review->estado !== 'pendente') {
             return back()->withErrors('Esta review já foi tratada.');
@@ -123,6 +130,12 @@ class ReviewController extends Controller
             'estado' => 'recusada',
             'justificacao' => $request->justificacao,
         ]);
+
+        LogService::criar(
+            'Reviews',
+            'Recusou review',
+            $review->id
+        );
 
         return back()->with('success', 'Review recusada.');
     }

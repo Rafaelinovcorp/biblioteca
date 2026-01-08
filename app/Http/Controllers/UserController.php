@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\LogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -11,8 +12,6 @@ class UserController extends Controller
 {
     public function index()
     {
-     
-
         $users = User::orderBy('name')->paginate(10);
 
         return view('users.index', compact('users'));
@@ -20,15 +19,11 @@ class UserController extends Controller
 
     public function create()
     {
-      
-
         return view('users.create');
     }
 
     public function store(Request $request)
     {
-       
-
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -40,7 +35,13 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
         $data['foto_perfil'] = $request->file('foto_perfil')->store('users', 'public');
 
-        User::create($data);
+        $user = User::create($data);
+
+        LogService::criar(
+            'Utilizadores',
+            'Criou utilizador: ' . $user->email,
+            $user->id
+        );
 
         return redirect()
             ->route('users.index')
@@ -49,8 +50,6 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        
-
         $user->load('requisicoes');
 
         return view('users.show', compact('user'));
@@ -58,15 +57,11 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-       
-
         return view('users.edit', compact('user'));
     }
 
     public function update(Request $request, User $user)
     {
-       
-
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -90,6 +85,12 @@ class UserController extends Controller
 
         $user->update($data);
 
+        LogService::criar(
+            'Utilizadores',
+            'Atualizou utilizador: ' . $user->email,
+            $user->id
+        );
+
         return redirect()
             ->route('users.index')
             ->with('success', 'Utilizador atualizado.');
@@ -97,16 +98,12 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-       
-
-       
         if ($user->id === auth()->id()) {
             return back()->withErrors([
                 'erro' => 'Não podes eliminar a tua própria conta.',
             ]);
         }
 
-        // impedir apagar último admin
         if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
             return back()->withErrors([
                 'erro' => 'Tem de existir pelo menos um administrador.',
@@ -117,7 +114,16 @@ class UserController extends Controller
             Storage::disk('public')->delete($user->foto_perfil);
         }
 
+        $userEmail = $user->email;
+        $userId = $user->id;
+
         $user->delete();
+
+        LogService::criar(
+            'Utilizadores',
+            'Eliminou utilizador: ' . $userEmail,
+            $userId
+        );
 
         return redirect()
             ->route('users.index')

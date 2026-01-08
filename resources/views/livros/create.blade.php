@@ -36,7 +36,7 @@
 
     <div>
         <label>Categoria</label>
-        <select name="categoria_id" required>
+        <select name="categoria_id" class="select select-bordered w-full" required>
     @foreach($categorias as $categoria)
         <option value="{{ $categoria->id }}">
             {{ $categoria->nome }}

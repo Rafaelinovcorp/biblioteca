@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\GoogleBooksService;
+use App\Services\LogService;
 use App\Models\Categoria;
 
 class GoogleBooksController extends Controller
@@ -29,6 +30,12 @@ class GoogleBooksController extends Controller
 
         session(['google_books_results' => $mapped]);
 
+        // 🔔 LOG: pesquisa
+        LogService::criar(
+            'Google Books',
+            'Pesquisou livros com o termo: ' . $request->q
+        );
+
         return view('google-books.index', [
             'results' => $mapped,
             'query'   => $request->q,
@@ -38,49 +45,56 @@ class GoogleBooksController extends Controller
     /**
      * ECRÃ INTERMÉDIO DE CONFIRMAÇÃO
      */
-   public function confirm(string $volumeId, GoogleBooksService $service)
-{
-    $volume = $service->getById($volumeId);
+    public function confirm(string $volumeId, GoogleBooksService $service)
+    {
+        $volume = $service->getById($volumeId);
 
-    if (empty($volume) || isset($volume['error'])) {
-        return redirect()
-            ->route('google-books.index')
-            ->withErrors('Não foi possível obter os dados do livro.');
+        if (empty($volume) || isset($volume['error'])) {
+            return redirect()
+                ->route('google-books.index')
+                ->withErrors('Não foi possível obter os dados do livro.');
+        }
+
+        $categorias = Categoria::orderBy('nome')->get();
+
+        return view('google-books.confirm', compact('volume', 'categorias', 'volumeId'));
     }
-
-    $categorias = \App\Models\Categoria::orderBy('nome')->get();
-
-    return view('google-books.confirm', compact('volume', 'categorias', 'volumeId'));
-}
-
 
     /**
      * IMPORT FINAL
      */
-public function store(string $volumeId, Request $request, GoogleBooksService $service)
-{
-    // validação manual (evita lock de sessão)
-    if (
-        !$request->filled('categoria_id') ||
-        !\App\Models\Categoria::where('id', $request->categoria_id)->exists()
-    ) {
-        return back()->withErrors('Categoria inválida.');
-    }
+    public function store(string $volumeId, Request $request, GoogleBooksService $service)
+    {
+        // validação manual (evita lock de sessão)
+        if (
+            !$request->filled('categoria_id') ||
+            !Categoria::where('id', $request->categoria_id)->exists()
+        ) {
+            return back()->withErrors('Categoria inválida.');
+        }
 
-    $volume = $service->getById($volumeId);
+        $volume = $service->getById($volumeId);
 
-    if (empty($volume) || isset($volume['error'])) {
+        if (empty($volume) || isset($volume['error'])) {
+            return redirect()
+                ->route('google-books.index')
+                ->withErrors('Não foi possível obter os dados do livro.');
+        }
+
+        $livro = $service->importVolumeToDatabase(
+            $volume,
+            (int) $request->categoria_id
+        );
+
+        // 🔔 LOG: importação
+        LogService::criar(
+            'Google Books',
+            'Importou livro via Google Books: ' . $livro->nome,
+            $livro->id
+        );
+
         return redirect()
-            ->route('google-books.index')
-            ->withErrors('Não foi possível obter os dados do livro.');
+            ->route('livros.show', $livro)
+            ->with('success', 'Livro importado com sucesso.');
     }
-
-    $livro = $service->importVolumeToDatabase($volume, (int) $request->categoria_id);
-
-    return redirect()
-        ->route('livros.show', $livro)
-        ->with('success', 'Livro importado com sucesso.');
-}
-
-
 }

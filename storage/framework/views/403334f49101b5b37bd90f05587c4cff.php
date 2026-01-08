@@ -55,7 +55,7 @@
             <label class="label">
                 <span class="label-text">Editora</span>
             </label>
-            <select name="editora_id"
+            <select name="editora_id class="select w-full"
                     class="select select-bordered w-full"
                     required>
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $editoras; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $editora): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>

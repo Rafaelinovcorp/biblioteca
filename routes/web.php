@@ -104,6 +104,21 @@ Route::get('/checkout/sucesso', fn () => view('checkout.sucesso'))
     */
     Route::middleware('admin')->group(function () {
 
+        /*
+|--------------------------------------------------------------------------
+| LOGS DO SISTEMA (APENAS ADMIN)
+|--------------------------------------------------------------------------
+*/
+Route::get('/logs', [
+    \App\Http\Controllers\LogController::class,
+    'index'
+])->name('logs.index');
+
+Route::get('/logs/{log}', [
+    \App\Http\Controllers\LogController::class,
+    'show'
+])->name('logs.show');
+
         // Confirmar requisição
         Route::post('/requisicoes/{requisicao}/confirmar', [
             RequisicaoController::class,

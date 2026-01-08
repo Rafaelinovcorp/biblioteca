@@ -55,7 +55,7 @@
             <label class="label">
                 <span class="label-text">Editora</span>
             </label>
-            <select name="editora_id"
+            <select name="editora_id class="select w-full"
                     class="select select-bordered w-full"
                     required>
                 @foreach($editoras as $editora)

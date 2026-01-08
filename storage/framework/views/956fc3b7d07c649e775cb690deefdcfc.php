@@ -19,6 +19,8 @@
             <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-44">
                 <li><a href="<?php echo e(route('livros.index')); ?>">📚 Livros</a></li>
                 <li><a href="<?php echo e(route('requisicoes.index')); ?>">📄 Requisições</a></li>
+                <li><a href="<?php echo e(route('carrinho.index')); ?>">🛒 Carrinho</a>
+            </li><a href="<?php echo e(route('livros.meus')); ?>">📚 Os meus livros</a>
             </ul>
         </li>
 
@@ -42,6 +44,12 @@
             📝 Reviews Pendentes
         </a>
     </li>
+     <!-- 🆕 LOGS -->
+                    <li>
+                        <a href="<?php echo e(route('logs.index')); ?>">
+                            📜 Logs
+                        </a>
+                    </li>
                 </ul>
             </li>
 

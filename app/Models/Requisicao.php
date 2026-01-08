@@ -3,8 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Requisicao extends Model
 {
+
+    use HasFactory;
+
     protected $table = 'requisicoes';
     protected $primaryKey = 'id';
 

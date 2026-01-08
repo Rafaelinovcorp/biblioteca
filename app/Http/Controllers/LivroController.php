@@ -10,6 +10,7 @@ use App\Models\Categoria;
 use App\Models\AlertaLivro;
 use App\Mail\LivroDisponivelMail;
 use App\Services\LivrosRelacionadosService;
+use App\Services\LogService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
@@ -100,6 +101,12 @@ class LivroController extends Controller
             $livro->autores()->sync($data['autores']);
         }
 
+        LogService::criar(
+            'Livros',
+            'Criou o livro: ' . $livro->nome,
+            $livro->id
+        );
+
         return redirect()
             ->route('livros.index')
             ->with('success', 'Livro criado.');
@@ -143,7 +150,6 @@ class LivroController extends Controller
 
     public function update(Request $request, Livro $livro)
     {
-        // Guardar estado anterior
         $estadoAnterior = $livro->estado;
 
         $data = $request->validate([
@@ -174,8 +180,19 @@ class LivroController extends Controller
             $livro->autores()->sync($data['autores'] ?? []);
         }
 
-        // 🔔 Enviar alerta se voltou a estar disponível
+        LogService::criar(
+            'Livros',
+            'Atualizou o livro: ' . $livro->nome,
+            $livro->id
+        );
+
         if ($estadoAnterior === 'requisitado' && $livro->estado === 'disponivel') {
+
+            LogService::criar(
+                'Livros',
+                'Livro voltou a estar disponível',
+                $livro->id
+            );
 
             $alertas = AlertaLivro::where('livro_id', $livro->id)
                 ->where('notificado', false)
@@ -198,6 +215,12 @@ class LivroController extends Controller
     public function destroy(Livro $livro)
     {
         $livro->delete();
+
+        LogService::criar(
+            'Livros',
+            'Eliminou o livro: ' . $livro->nome,
+            $livro->id
+        );
 
         return redirect()
             ->route('livros.index')

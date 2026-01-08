@@ -154,6 +154,16 @@
                             Ver
                         </a>
 
+                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($livro->estado === 'disponivel'): ?>
+                            <form method="POST" action="<?php echo e(route('carrinho.add', $livro)); ?>">
+                                <?php echo csrf_field(); ?>
+                                <button class="btn btn-sm btn-primary">
+                                    🛒 Adicionar
+                                </button>
+                            </form>
+                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+
                         <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(auth()->check() && auth()->user()->role === 'admin'): ?>
                             <a href="<?php echo e(route('livros.edit', $livro)); ?>"
                                class="btn btn-xs btn-warning">

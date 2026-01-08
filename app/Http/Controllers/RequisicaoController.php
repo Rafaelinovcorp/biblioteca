@@ -6,12 +6,12 @@ use App\Models\Requisicao;
 use App\Models\Livro;
 use App\Models\AlertaLivro;
 use App\Mail\LivroDisponivelMail;
+use App\Services\LogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 
 class RequisicaoController extends Controller
 {
@@ -66,7 +66,7 @@ class RequisicaoController extends Controller
             ]);
         }
 
-        Requisicao::create([
+        $requisicao = Requisicao::create([
             'user_id' => $user->id,
             'livro_id' => $livro->id,
             'estado' => 'pendente',
@@ -77,8 +77,13 @@ class RequisicaoController extends Controller
         $livro->update(['estado' => 'ocupado']);
 
         AlertaLivro::where('livro_id', $livro->id)
-    ->update(['notificado' => false]);
+            ->update(['notificado' => false]);
 
+        LogService::criar(
+            'Requisições',
+            'Criou requisição do livro: ' . $livro->nome,
+            $requisicao->id
+        );
 
         return redirect()
             ->route('requisicoes.index')
@@ -104,49 +109,48 @@ class RequisicaoController extends Controller
 
     public function confirmar(Requisicao $requisicao)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        abort_if(Auth::user()->role !== 'admin', 403);
 
         if ($requisicao->estado !== 'pendente') {
             return back()->withErrors('Só é possível confirmar requisições pendentes.');
         }
 
-        $requisicao->update([
-            'estado' => 'confirmado',
-        ]);
+        $requisicao->update(['estado' => 'confirmado']);
+
+        LogService::criar(
+            'Requisições',
+            'Confirmou requisição',
+            $requisicao->id
+        );
 
         return back()->with('success', 'Requisição confirmada.');
     }
 
     public function negar(Requisicao $requisicao)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        abort_if(Auth::user()->role !== 'admin', 403);
 
         if ($requisicao->estado !== 'pendente') {
             return back()->withErrors('Só é possível negar requisições pendentes.');
         }
 
-        $requisicao->update([
-            'estado' => 'cancelado',
-        ]);
-
-        $requisicao->livro->update([
-            'estado' => 'disponivel',
-        ]);
+        $requisicao->update(['estado' => 'cancelado']);
+        $requisicao->livro->update(['estado' => 'disponivel']);
 
         $this->notificarLivroDisponivel($requisicao->livro);
+
+        LogService::criar(
+            'Requisições',
+            'Negou requisição',
+            $requisicao->id
+        );
 
         return back()->with('success', 'Requisição negada.');
     }
 
     public function aceitarDevolucao(Requisicao $requisicao)
     {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        abort_if(Auth::user()->role !== 'admin', 403);
 
         if ($requisicao->estado !== 'devolucao_pedida') {
             return back()->withErrors('Não existe pedido de devolução.');
@@ -168,11 +172,15 @@ class RequisicaoController extends Controller
             'penalizacao' => $diasAtraso * 1,
         ]);
 
-        $requisicao->livro->update([
-            'estado' => 'disponivel',
-        ]);
+        $requisicao->livro->update(['estado' => 'disponivel']);
 
         $this->notificarLivroDisponivel($requisicao->livro);
+
+        LogService::criar(
+            'Requisições',
+            'Aceitou devolução da requisição',
+            $requisicao->id
+        );
 
         return back()->with('success', 'Devolução aceite com sucesso.');
     }
@@ -185,17 +193,19 @@ class RequisicaoController extends Controller
     {
         $user = Auth::user();
 
-        if ($requisicao->user_id !== $user->id) {
-            abort(403);
-        }
+        abort_if($requisicao->user_id !== $user->id, 403);
 
         if ($requisicao->estado !== 'confirmado') {
             return back()->withErrors('Só podes pedir devolução de requisições confirmadas.');
         }
 
-        $requisicao->update([
-            'estado' => 'devolucao_pedida',
-        ]);
+        $requisicao->update(['estado' => 'devolucao_pedida']);
+
+        LogService::criar(
+            'Requisições',
+            'Pediu devolução da requisição',
+            $requisicao->id
+        );
 
         return back()->with('success', 'Pedido de devolução enviado.');
     }
@@ -204,23 +214,22 @@ class RequisicaoController extends Controller
     {
         $user = Auth::user();
 
-        if ($requisicao->user_id !== $user->id) {
-            abort(403);
-        }
+        abort_if($requisicao->user_id !== $user->id, 403);
 
         if ($requisicao->estado !== 'pendente') {
             return back()->withErrors('Só podes cancelar requisições pendentes.');
         }
 
-        $requisicao->update([
-            'estado' => 'cancelado',
-        ]);
-
-        $requisicao->livro->update([
-            'estado' => 'disponivel',
-        ]);
+        $requisicao->update(['estado' => 'cancelado']);
+        $requisicao->livro->update(['estado' => 'disponivel']);
 
         $this->notificarLivroDisponivel($requisicao->livro);
+
+        LogService::criar(
+            'Requisições',
+            'Cancelou a própria requisição',
+            $requisicao->id
+        );
 
         return back()->with('success', 'Requisição cancelada.');
     }
@@ -233,9 +242,7 @@ class RequisicaoController extends Controller
     {
         $user = Auth::user();
 
-        if ($requisicao->user_id !== $user->id) {
-            abort(403);
-        }
+        abort_if($requisicao->user_id !== $user->id, 403);
 
         if (!in_array($requisicao->estado, ['confirmado', 'devolucao_pedida'])) {
             abort(403, 'Download não disponível neste estado.');

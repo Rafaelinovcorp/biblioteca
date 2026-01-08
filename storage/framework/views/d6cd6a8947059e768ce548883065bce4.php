@@ -60,6 +60,17 @@
                 <button class="btn btn-warning">
                     🔔 Avisar quando disponível
                 </button>
+
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($livro->estado === 'disponivel'): ?>
+    <form method="POST" action="<?php echo e(route('carrinho.add', $livro)); ?>" class="mt-4">
+        <?php echo csrf_field(); ?>
+        <button class="btn btn-primary">
+            🛒 Adicionar ao Carrinho
+        </button>
+    </form>
+<?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+
             </form>
         <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 

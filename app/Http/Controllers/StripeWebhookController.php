@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Stripe\Webhook;
 use App\Models\Encomenda;
 use App\Models\Carrinho;
+use App\Services\LogService;
 
 class StripeWebhookController extends Controller
 {
@@ -43,6 +43,12 @@ class StripeWebhookController extends Controller
                 ]);
 
                 Carrinho::where('user_id', $encomenda->user_id)->delete();
+
+                LogService::criar(
+                    'Stripe',
+                    'Pagamento confirmado via webhook (encomenda paga)',
+                    $encomenda->id
+                );
             }
         }
 
