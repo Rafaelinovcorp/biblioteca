@@ -1,10 +1,17 @@
 <nav>
-    <ul class="menu menu-horizontal bg-base-200 rounded-box text-sm gap-1">
+    <ul class="menu menu-horizontal bg-base-200 rounded-box text-sm gap-1 w-full">
 
         <!-- DASHBOARD -->
         <li>
             <a href="{{ route('dashboard') }}">📊 Dashboard</a>
         </li>
+
+        @auth
+            <!-- CHAT -->
+            <li>
+                <a href="{{ route('chat.index') }}">💬 Chat</a>
+            </li>
+        @endauth
 
         <!-- CATÁLOGO -->
         <li class="dropdown dropdown-hover">
@@ -19,49 +26,40 @@
             <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-44">
                 <li><a href="{{ route('livros.index') }}">📚 Livros</a></li>
                 <li><a href="{{ route('requisicoes.index') }}">📄 Requisições</a></li>
-                <li><a href="{{ route('carrinho.index') }}">🛒 Carrinho</a>
-            </li><a href="{{ route('livros.meus') }}">📚 Os meus livros</a>
+                <li><a href="{{ route('carrinho.index') }}">🛒 Carrinho</a></li>
+                <li><a href="{{ route('livros.meus') }}">📖 Os meus livros</a></li>
             </ul>
         </li>
 
-        @if(auth()->check() && auth()->user()->role === 'admin')
+        @auth
+            @if(auth()->user()->role === 'admin')
+                <!-- GESTÃO -->
+                <li class="dropdown dropdown-hover">
+                    <label class="cursor-pointer">
+                        ⚙️ Gestão
+                        <svg class="inline-block ml-1" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                             viewBox="0 0 24 24">
+                            <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                    </label>
 
-            <!-- GESTÃO -->
-            <li class="dropdown dropdown-hover">
-                <label class="cursor-pointer">
-                    ⚙️ Gestão
-                    <svg class="inline-block ml-1" xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-                         viewBox="0 0 24 24">
-                        <path d="M7 10l5 5 5-5z"/>
-                    </svg>
-                </label>
+                    <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-44">
+                        <li><a href="{{ route('autores.index') }}">✍️ Autores</a></li>
+                        <li><a href="{{ route('editoras.index') }}">🏢 Editoras</a></li>
+                        <li><a href="{{ route('reviews.pendentes') }}">📝 Reviews Pendentes</a></li>
+                        <li><a href="{{ route('logs.index') }}">📜 Logs</a></li>
+                    </ul>
+                </li>
 
-                <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-44">
-                    <li><a href="{{ route('autores.index') }}">✍️ Autores</a></li>
-                    <li><a href="{{ route('editoras.index') }}">🏢 Editoras</a></li>
-                    <li>
-        <a href="{{ route('reviews.pendentes') }}">
-            📝 Reviews Pendentes
-        </a>
-    </li>
-     <!-- 🆕 LOGS -->
-                    <li>
-                        <a href="{{ route('logs.index') }}">
-                            📜 Logs
-                        </a>
-                    </li>
-                </ul>
-            </li>
+                <li>
+                    <a href="{{ route('users.index') }}">👤 Utilizadores</a>
+                </li>
 
-            <li>
-                <a href="{{ route('users.index') }}">👤 Utilizadores</a>
-            </li>
-
-            <li>
-                <a href="{{ route('google-books.index') }}">🌐 Google Books API</a>
-            </li>
-
-        @endif
+                <li>
+                    <a href="{{ route('google-books.index') }}">🌐 Google Books API</a>
+                </li>
+            @endif
+        @endauth
 
         @auth
             <!-- CONTA -->

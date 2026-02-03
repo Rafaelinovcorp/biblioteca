@@ -9,6 +9,7 @@
 </head>
 
 <body class="bg-base-200">
+    
 
     <div class="bg-base-300 shadow">
         <div class="navbar max-w-7xl mx-auto px-6">

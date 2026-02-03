@@ -8,6 +8,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Conversation;
+use App\Models\Message;
+
 
 class User extends Authenticatable
 {
@@ -22,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'status',
     ];
 
     protected $hidden = [
@@ -60,11 +64,23 @@ class User extends Authenticatable
     return $this->hasMany(Review::class);
 }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Helpers
-    |--------------------------------------------------------------------------
-    */
+    /* --------------------
+ | CHAT RELATIONSHIPS
+ |--------------------*/
+
+// Conversas onde o user participa
+public function conversations()
+{
+    return $this->belongsToMany(Conversation::class)
+        ->withPivot('joined_at');
+}
+
+// Mensagens enviadas pelo user
+public function messages()
+{
+    return $this->hasMany(Message::class);
+}
+
 
 
 }
